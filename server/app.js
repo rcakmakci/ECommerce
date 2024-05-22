@@ -1,10 +1,35 @@
 import e from "express";
+import dotenv from "dotenv";
+import cors from "cors";
 const app = e();
+dotenv.config();
 
-app.get("/", (req, res) => {
-  res.send("Uygulama Çalıştı");
-});
+import sequelize from "./config/database.js";
+import "./models/relationship.js";
+sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log("Veritabanı Senkronize edildi");
+  })
+  .catch((err) => {
+    console.log("Veritabanı Senkronizasyon hatası: ", err);
+  });
 
-app.listen(3000, () => {
-  console.log("Server Started on the 3000 Port");
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+app.use(e.json());
+app.use(e.urlencoded({ extended: true }));
+
+import userRouter from "./routers/userRouter.js";
+
+app.use("/api/user", userRouter);
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server Started on the ${port} Port`);
 });

@@ -26,8 +26,10 @@ app.use(e.json());
 app.use(e.urlencoded({ extended: true }));
 
 import userRouter from "./routers/userRouter.js";
+import adminRouter from "./routers/adminRouter.js";
 
 app.use("/api/user", userRouter);
+app.use("/api/admin", adminRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

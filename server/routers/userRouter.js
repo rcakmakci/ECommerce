@@ -1,10 +1,9 @@
-// 3. parti
+// 3. Party
 import e from "express";
 const router = e.Router();
 
-// Core
-import * as userController from "../controllers/userController.js";
+import * as user from "../controllers/userController.js";
 
-router.get("/", userController.getAllUser);
+router.get("/", user.getAllUser);
 
 export default router;

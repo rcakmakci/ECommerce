@@ -1,3 +1,6 @@
+// 3. Parti
+import bcrypt from "bcrypt";
+
 import User from "../models/user.js";
 
 export const getAllUsers = async (req, res) => {
@@ -44,12 +47,14 @@ export const addUser = async (req, res) => {
       console.error(errors);
       return res.status(400).json({ errors });
     }
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const user = await User.create({
       firstName: firstName,
       lastName: lastName,
       email: email,
       phone: phone,
-      password: password,
+      password: hashedPassword,
       role: role,
     });
     if (user) {
@@ -101,6 +106,43 @@ export const deleteUser = async (req, res) => {
     } else {
       res.status(400).json({
         error: "silmek istediğiniz kullanıcı bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updateData = req.body;
+    const user = await User.findByPk(id);
+    if (user) {
+      Object.keys(updateData).forEach((key) => {
+        user[key] = updateData[key];
+      });
+      if (updateData.password) {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(
+          updateData.password,
+          saltRounds
+        );
+        user.password = hashedPassword;
+        console.log("\n\n" + hashedPassword + "\n\n");
+      }
+      await user.save();
+
+      res.status(200).json({
+        data: user,
+        msg: "Kullanıcı başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Güncellemek istediğiniz kullanıcı bulunamadı",
       });
     }
   } catch (error) {

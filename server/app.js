@@ -25,6 +25,7 @@ app.use(
 app.use(e.json());
 app.use(e.urlencoded({ extended: true }));
 
+// Router Codes
 import userRouter from "./routers/userRouter.js";
 import adminRouter from "./routers/adminRouter.js";
 

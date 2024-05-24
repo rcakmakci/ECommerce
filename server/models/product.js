@@ -1,5 +1,6 @@
 import sequelize from "../config/database.js";
 import { DataTypes } from "sequelize";
+import SequelizeSlugify from "sequelize-slugify";
 
 const Product = sequelize.define("Product", {
   title: {
@@ -32,6 +33,11 @@ const Product = sequelize.define("Product", {
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true,
   },
+});
+
+SequelizeSlugify.slugifyModel(Product, {
+  source: ["title"],
+  overwrite: true,
 });
 
 export default Product;

@@ -746,6 +746,49 @@ export const getSellersWithoutShops = async (req, res) => {
   }
 };
 
+export const getAllShop = async (req, res) => {
+  try {
+    const shops = await Shop.findAll();
+    if (shops.length > 0) {
+      res.status(200).json({
+        data: shops,
+        msg: "Tüm mağazalar başarılı bir şekilde listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Listelenecek mağaza bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getShop = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const shop = await Shop.findByPk(id);
+    if (shop) {
+      res.status(200).json({
+        data: shop,
+        msg: "Mağaza bilgisi başarılı bir şekilde alındı",
+      });
+    } else {
+      res.status(400).json({
+        error: "Mağaza bilgisi bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
 export const addShop = async (req, res) => {
   try {
     const { name, categoryId, userId } = req.body;
@@ -780,6 +823,59 @@ export const addShop = async (req, res) => {
           error: "Mağaza kayıt edilemedi",
         });
       }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const deleteShop = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const shop = await Shop.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (shop.length > 0) {
+      res.status(200).json({
+        msg: "Mağaza başarılı bir şekilde silindi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Mağaza silinemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateShop = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updateData = req.body;
+    const shop = await Shop.findByPk(id);
+    if (shop) {
+      Object.keys(updateData).forEach((key) => {
+        shop[key] = updateData[key];
+      });
+      await shop.save();
+
+      res.status(200).json({
+        data: shop,
+        msg: "Mağaza başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Güncellemek istediğiniz mağaza bulunamadı",
+      });
     }
   } catch (error) {
     console.error(error);

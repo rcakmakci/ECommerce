@@ -23,6 +23,7 @@ const Shop = sequelize.define("Shop", {
 
 SequelizeSlugify.slugifyModel(Shop, {
   source: ["name"],
+  overwrite: true,
 });
 
 export default Shop;

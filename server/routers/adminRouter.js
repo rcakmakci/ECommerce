@@ -42,6 +42,10 @@ router.delete("/three-sub-category/:id", admin.deleteThreeSubCategory);
 
 // ! Admin Shop
 router.get("/seller-without-shop", admin.getSellersWithoutShops);
+router.get("/shop", admin.getAllShop);
+router.get("/shop/:id", admin.getShop);
 router.post("/shop", admin.addShop);
+router.put("/shop/:id", admin.updateShop);
+router.delete("/shop/:id", admin.deleteShop);
 
 export default router;

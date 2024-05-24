@@ -14,6 +14,7 @@ const SubCategory = sequelize.define("SubCategory", {
 
 SequelizeSlugify.slugifyModel(SubCategory, {
   source: ["name"],
+  overwrite: true,
 });
 
 export default SubCategory;

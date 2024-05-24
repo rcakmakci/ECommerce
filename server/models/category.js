@@ -15,6 +15,7 @@ const Category = sequelize.define("Category", {
 
 SequelizeSlugify.slugifyModel(Category, {
   source: ["name"],
+  overwrite: true,
 });
 
 export default Category;

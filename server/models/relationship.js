@@ -15,6 +15,7 @@ import ThreeSubCategory from "./threeSubCategory.js";
 User.hasMany(Cart); // Bir kullanıcı birden fazla sepete sahip olabilir (Sadece 1 aktif sepete sahip olabilecek).
 User.hasMany(Order); // Bir kullanıcı birden fazla siparişe sahip olabilir.
 User.hasMany(Comment); // Bir kullanıcı birden fazla yoruma sahip olabilir.
+User.hasOne(Shop); // Bir kullanıcı sadece bir mağazaya sahip olabilir.
 
 // ! Product (Ürün) ilişkileri
 Product.hasMany(Comment); // Bir ürün birden fazla yoruma sahip olabilir.

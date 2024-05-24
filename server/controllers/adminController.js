@@ -6,6 +6,8 @@ import Category from "../models/category.js";
 import SubCategory from "../models/subCategory.js";
 import SubSubCategory from "../models/subSubCategory.js";
 import ThreeSubCategory from "../models/threeSubCategory.js";
+import Shop from "../models/shop.js";
+import sequelize from "../config/database.js";
 
 //  ! User
 export const getAllUsers = async (req, res) => {
@@ -692,6 +694,92 @@ export const updateThreeSubCategory = async (req, res) => {
       res.status(400).json({
         error: "Alt Kategori güncellenemedi",
       });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+// ! Shop
+export const getSellersWithoutShops = async (req, res) => {
+  try {
+    const sellersWithoutShops = await User.findAll({
+      where: {
+        role: "seller", // rolü "seller" olan kullanıcıları bul
+      },
+      // attributes: [
+      //   "id", // kullanıcının id'sini al
+      //   [sequelize.fn("COUNT", sequelize.col("Shop.id")), "shopCount"], // Shops.id'yi say ve shopCount olarak adlandır
+      // ],
+      include: [
+        {
+          model: Shop, // Shop modeli ile ilişkilendir
+          required: false, // Mağazası olmayan kullanıcıların da dahil edilmesi için
+          attributes: [], // Mağaza ile ilgili ek alanları dahil etme
+        },
+      ],
+      group: ["User.id"], // Kullanıcıları id'lerine göre grupla
+      having: sequelize.where(
+        sequelize.fn("COUNT", sequelize.col("Shop.id")),
+        "=",
+        0
+      ), // Mağazası olmayan kullanıcıları filtrele
+    });
+    if (sellersWithoutShops.length > 0) {
+      res.status(200).json({
+        data: sellersWithoutShops,
+        msg: "Uygun satıcılar başarıyla listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Mağaza için uygun bir satıcı bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const addShop = async (req, res) => {
+  try {
+    const { name, categoryId, userId } = req.body;
+    const seller = await User.findOne(
+      {
+        where: {
+          id: userId,
+        },
+      },
+      {
+        include: [Shop],
+      }
+    );
+    if (seller.role == "seller" && !seller.Shop) {
+      const shop = await Shop.create(
+        {
+          name: name,
+          CategoryId: categoryId,
+          UserId: userId,
+        },
+        {
+          include: [Category, User],
+        }
+      );
+      if (shop) {
+        res.status(200).json({
+          data: shop,
+          msg: "Yeni mağaza başarılı bir şekilde kayıt edildi",
+        });
+      } else {
+        res.status(400).json({
+          error: "Mağaza kayıt edilemedi",
+        });
+      }
     }
   } catch (error) {
     console.error(error);

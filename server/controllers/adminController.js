@@ -835,18 +835,16 @@ export const addShop = async (req, res) => {
 export const deleteShop = async (req, res) => {
   try {
     const id = req.params.id;
-    const shop = await Shop.destroy({
-      where: {
-        id: id,
-      },
-    });
-    if (shop.length > 0) {
+    const shop = await Shop.findByPk(id);
+    if (shop) {
+      await shop.destroy();
       res.status(200).json({
+        data: shop,
         msg: "Mağaza başarılı bir şekilde silindi",
       });
     } else {
       res.status(400).json({
-        error: "Mağaza silinemedi",
+        error: "silmek istediğiniz mağaza bulunamadı",
       });
     }
   } catch (error) {

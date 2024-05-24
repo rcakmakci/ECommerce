@@ -1,5 +1,6 @@
 import sequelize from "../config/database.js";
 import { DataTypes } from "sequelize";
+import SequelizeSlugify from "sequelize-slugify";
 
 const Category = sequelize.define("Category", {
   name: {
@@ -8,8 +9,12 @@ const Category = sequelize.define("Category", {
   },
   slug: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    unique: true,
   },
+});
+
+SequelizeSlugify.slugifyModel(Category, {
+  source: ["name"],
 });
 
 export default Category;

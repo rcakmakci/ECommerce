@@ -2,7 +2,12 @@
 import bcrypt from "bcrypt";
 
 import User from "../models/user.js";
+import Category from "../models/category.js";
+import SubCategory from "../models/subCategory.js";
+import SubSubCategory from "../models/subSubCategory.js";
+import ThreeSubCategory from "../models/threeSubCategory.js";
 
+//  ! User
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll();
@@ -143,6 +148,549 @@ export const updateUser = async (req, res) => {
     } else {
       res.status(400).json({
         error: "Güncellemek istediğiniz kullanıcı bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+// ! CATEGORY
+export const addBulkCategory = async (req, res) => {
+  try {
+    const { categories } = req.body;
+    for (const category of categories) {
+      const createdCategory = await Category.create({
+        name: category.name,
+      });
+      for (const subCategory of category.subCategories) {
+        const createdSubCategory = await SubCategory.create(
+          {
+            name: subCategory.name,
+            CategoryId: createdCategory.id,
+          },
+          {
+            include: [Category],
+          }
+        );
+        for (const subSubCategory of subCategory.subCategories) {
+          const createdSubSubCategory = await SubSubCategory.create(
+            {
+              name: subSubCategory.name,
+              SubCategoryId: createdSubCategory.id,
+            },
+            {
+              include: [SubCategory],
+            }
+          );
+          for (const threeSubCategory of subSubCategory.subCategories) {
+            const createdThreeSubCategory = await ThreeSubCategory.create(
+              {
+                name: threeSubCategory.name,
+                SubSubCategoryId: createdSubSubCategory.id,
+              },
+              {
+                include: [SubSubCategory],
+              }
+            );
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getAllCategory = async (req, res) => {
+  try {
+    const categories = await Category.findAll();
+    if (categories.length > 0) {
+      res.status(200).json({
+        data: categories,
+        msg: "Kategoriler başarılı bir şekilde listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Listelenecek kategori yok",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.findByPk(id);
+    if (category) {
+      res.status(200).json({
+        data: category,
+        msg: "Kategori bilgisi alındı",
+      });
+    } else {
+      res.status(400).json({
+        error: "Kategori bilgileri alınamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const addCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const category = await Category.create({
+      name,
+    });
+    if (category) {
+      res.status(200).json({
+        data: category,
+        msg: "Kategori başarılı bir şekilde eklendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Kategori eklenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const deleteCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const category = await Category.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (category.length > 0) {
+      res.status(200).json({
+        msg: "Kategori başarılı bir şekilde silindi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Kategori silinemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name } = req.body;
+    const [row, updatedCategory] = await Category.update(
+      { name: name },
+      {
+        where: {
+          id: id,
+        },
+        returning: true,
+        plain: true,
+      }
+    );
+    if (row.length > 0) {
+      res.status(200).json({
+        data: updatedCategory,
+        msg: "Kategori başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Kategori güncellenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+// ! SUB CATEGORY
+export const getAllSubCategory = async (req, res) => {
+  try {
+    const subCategories = await SubCategory.findAll();
+    if (subCategories.length > 0) {
+      res.status(200).json({
+        data: subCategories,
+        msg: "Alt Kategoriler başarıyla listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Listelenecek Alt KAtegori bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const subCategory = await SubCategory.findByPk(id);
+    if (subCategory) {
+      res.status(200).json({
+        data: subCategory,
+        msg: "Alt Kategori bilgisi alındı",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({
+      error,
+    });
+  }
+};
+
+export const addSubCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const subCategory = await SubCategory.create({ name: name });
+    if (subCategory) {
+      res.status(200).json({
+        data: subCategory,
+        msg: "Alt Kategori Başarılı bir şekilde eklendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori eklenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const deleteSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const subCategory = await SubCategory.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (subCategory) {
+      res.status(200).json({
+        msg: "Alt Kategori silindi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori silinemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name } = req.body;
+    const [row, updatedSubCategory] = await SubCategory.update(
+      { name: name },
+      {
+        where: {
+          id: id,
+        },
+        returning: true,
+        plain: true,
+      }
+    );
+    if (row.length > 0) {
+      res.status(200).json({
+        data: updatedSubCategory,
+        msg: "Alt Kategori başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori güncellenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+// ! SUB SUB CATEGORY
+export const getAllSubSubCategory = async (req, res) => {
+  try {
+    const subSubCategories = await SubSubCategory.findAll();
+    if (subSubCategories.length > 0) {
+      res.status(200).json({
+        data: subSubCategories,
+        msg: "Alt Kategoriler başarıyla listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Listelenecek Alt KAtegori bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getSubSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const subSubCategory = await SubSubCategory.findByPk(id);
+    if (subSubCategory) {
+      res.status(200).json({
+        data: subSubCategory,
+        msg: "Alt Kategori bilgisi alındı",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({
+      error,
+    });
+  }
+};
+
+export const addSubSubCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const subSubCategory = await SubSubCategory.create({ name: name });
+    if (subSubCategory) {
+      res.status(200).json({
+        data: subSubCategory,
+        msg: "Alt Kategori Başarılı bir şekilde eklendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori eklenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const deleteSubSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const subSubCategory = await SubSubCategory.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (subSubCategory) {
+      res.status(200).json({
+        msg: "Alt Kategori silindi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori silinemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateSubSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name } = req.body;
+    const [row, updatedSubSubCategory] = await SubSubCategory.update(
+      { name: name },
+      {
+        where: {
+          id: id,
+        },
+        returning: true,
+        plain: true,
+      }
+    );
+    if (row.length > 0) {
+      res.status(200).json({
+        data: updatedSubSubCategory,
+        msg: "Alt Kategori başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori güncellenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+// ! THREE SUB CATEGORY
+export const getAllThreeSubCategory = async (req, res) => {
+  try {
+    const threeSubCategories = await ThreeSubCategory.findAll();
+    if (threeSubCategories.length > 0) {
+      res.status(200).json({
+        data: threeSubCategories,
+        msg: "Alt Kategoriler başarıyla listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Listelenecek Alt KAtegori bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getThreeSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const threeSubCategory = await ThreeSubCategory.findByPk(id);
+    if (threeSubCategory) {
+      res.status(200).json({
+        data: threeSubCategory,
+        msg: "Alt Kategori bilgisi alındı",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json({
+      error,
+    });
+  }
+};
+
+export const addThreeSubCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const threeSubCategory = await ThreeSubCategory.create({ name: name });
+    if (threeSubCategory) {
+      res.status(200).json({
+        data: threeSubCategory,
+        msg: "Alt Kategori Başarılı bir şekilde eklendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori eklenemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const deleteThreeSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const threeSubCategory = await ThreeSubCategory.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (threeSubCategory) {
+      res.status(200).json({
+        msg: "Alt Kategori silindi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori silinemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateThreeSubCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name } = req.body;
+    const [row, updatedThreeSubCategory] = await ThreeSubCategory.update(
+      { name: name },
+      {
+        where: {
+          id: id,
+        },
+        returning: true,
+        plain: true,
+      }
+    );
+    if (row.length > 0) {
+      res.status(200).json({
+        data: updatedThreeSubCategory,
+        msg: "Alt Kategori başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Alt Kategori güncellenemedi",
       });
     }
   } catch (error) {

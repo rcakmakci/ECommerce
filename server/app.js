@@ -22,9 +22,8 @@ app.use(
   })
 );
 
-app.use(e.json());
-app.use(e.urlencoded({ extended: true }));
-
+app.use(e.json({ limit: "10mb" }));
+app.use(e.urlencoded({ limit: "10mb", extended: true }));
 
 import userRouter from "./routers/userRouter.js";
 import adminRouter from "./routers/adminRouter.js";

@@ -3,11 +3,13 @@ import Shop from "./shop.js";
 import Product from "./product.js";
 import Category from "./category.js";
 import SubCategory from "./subCategory.js";
+import SubSubCategory from "./subSubCategory.js";
 import Order from "./order.js";
 import OrderLine from "./orderLine.js";
 import Cart from "./cart.js";
 import CartItem from "./cartItem.js";
 import Comment from "./comment.js";
+import ThreeSubCategory from "./threeSubCategory.js";
 
 // ! User (Kullanıcı) ilişkileri
 User.hasMany(Cart); // Bir kullanıcı birden fazla sepete sahip olabilir (Sadece 1 aktif sepete sahip olabilecek).
@@ -40,3 +42,6 @@ Comment.belongsTo(User); // Bir yorum sadece bir kullanıcıya ait olabilir.
 // ! Category (Kategori) ilişkileri
 Category.hasMany(SubCategory); // Bir kategori birden fazla alt kategoriye sahip olabilir.
 SubCategory.belongsTo(Category); // Bir alt kategori sadece bir kategoriye ait olabilir.
+SubCategory.hasMany(SubSubCategory); // Bir alt kategorinin de birden fazla alt kategorileri olabilir.
+SubSubCategory.belongsTo(SubCategory); // İkinci bir alt kategori sadece bir ebeveyn kategoriye ait olabilir. Yani sadece bir Üst Kategorisi olabilir.
+ThreeSubCategory.belongsTo(SubSubCategory); // 3. bir alt kategori sadece bir ebeveyne ait olabilir.

@@ -6,6 +6,7 @@ import Category from "../models/category.js";
 import SubCategory from "../models/subCategory.js";
 import SubSubCategory from "../models/subSubCategory.js";
 import ThreeSubCategory from "../models/threeSubCategory.js";
+import Product from "../models/product.js";
 import Shop from "../models/shop.js";
 import sequelize from "../config/database.js";
 
@@ -32,7 +33,8 @@ export const getAllUsers = async (req, res) => {
 
 export const addUser = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password, role } = req.body;
+    const { firstName, lastName, email, username, phone, password, role } =
+      req.body;
     const errors = {};
     let existEmail = await User.findOne({
       where: {
@@ -41,6 +43,14 @@ export const addUser = async (req, res) => {
     });
     if (existEmail) {
       errors.email = "Bu E posta hesabı zaten kullanılıyor.";
+    }
+    let existUsername = await User.findOne({
+      where: {
+        username: username,
+      },
+    });
+    if (existUsername) {
+      errors.username = "Bu Username hesabı zaten kullanılıyor.";
     }
     let existPhone = await User.findOne({
       where: {
@@ -60,6 +70,7 @@ export const addUser = async (req, res) => {
       firstName: firstName,
       lastName: lastName,
       email: email,
+      username: username,
       phone: phone,
       password: hashedPassword,
       role: role,
@@ -791,11 +802,11 @@ export const getShop = async (req, res) => {
 
 export const addShop = async (req, res) => {
   try {
-    const { name, categoryId, userId } = req.body;
+    const { name, CategoryId, UserId } = req.body;
     const seller = await User.findOne(
       {
         where: {
-          id: userId,
+          id: UserId,
         },
       },
       {
@@ -806,8 +817,8 @@ export const addShop = async (req, res) => {
       const shop = await Shop.create(
         {
           name: name,
-          CategoryId: categoryId,
-          UserId: userId,
+          CategoryId: CategoryId,
+          UserId: UserId,
         },
         {
           include: [Category, User],
@@ -873,6 +884,122 @@ export const updateShop = async (req, res) => {
     } else {
       res.status(400).json({
         error: "Güncellemek istediğiniz mağaza bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+// ! Product
+export const getAllProduct = async (req, res) => {
+  try {
+    const product = await Product.findAll();
+    if (product.length > 0) {
+      res.status(200).json({
+        data: product,
+        msg: "Ürünler başarılı bir şekilde listelendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Listelenecek ürün bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const getProduct = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const product = await Product.findByPk(id);
+    if (product) {
+      res.status(200).json({
+        data: product,
+        msg: "Ürün bilgisi başarılı bir şekilde alındı",
+      });
+    } else {
+      res.status(400).json({
+        error: "Ürün bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const addProduct = async (req, res) => {
+  try {
+    const productData = req.body;
+    const product = await Product.create(productData);
+    if (product) {
+      res.status(200).json({
+        data: product,
+        msg: "Ürün başarılı bir şekilde kayıt edildi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Ürün kayıt edilemedi",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updateData = req.body;
+    const product = await Product.findByPk(id);
+    if (product) {
+      Object.keys(updateData).forEach((key) => {
+        product[key] = updateData[key];
+      });
+      await product.save();
+
+      res.status(200).json({
+        data: product,
+        msg: "Mağaza başarılı bir şekilde güncellendi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Güncellemek istediğiniz mağaza bulunamadı",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const product = await Product.findByPk(id);
+    if (product) {
+      await product.destroy();
+      res.status(200).json({
+        msg: "Ürün başarılı bir şekilde silindi",
+      });
+    } else {
+      res.status(400).json({
+        error: "Silmek istediğiniz ürün bulunamadı",
       });
     }
   } catch (error) {

@@ -3,7 +3,9 @@ import e from "express";
 const router = e.Router();
 
 import * as admin from "../controllers/adminController.js";
+import { requireAuth } from "../middlewares/authentication.js";
 
+router.use(requireAuth);
 // ! Admin User
 router.get("/user", admin.getAllUsers);
 router.post("/user", admin.addUser);
@@ -47,5 +49,12 @@ router.get("/shop/:id", admin.getShop);
 router.post("/shop", admin.addShop);
 router.put("/shop/:id", admin.updateShop);
 router.delete("/shop/:id", admin.deleteShop);
+
+// ! Admin Product
+router.get("/product", admin.getAllProduct);
+router.get("/product/:id", admin.getProduct);
+router.post("/product", admin.addProduct);
+router.put("/product/:id", admin.updateProduct);
+router.delete("/product/:id", admin.deleteProduct);
 
 export default router;

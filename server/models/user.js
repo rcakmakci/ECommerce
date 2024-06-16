@@ -10,6 +10,10 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -26,6 +30,7 @@ const User = sequelize.define("User", {
   },
   role: {
     type: DataTypes.ENUM("admin", "user", "seller"),
+    defaultValue: "user",
   },
 });
 

@@ -1,5 +1,6 @@
 import sequelize from "../config/database.js";
 import { DataTypes } from "sequelize";
+import SequelizeSlugify from "sequelize-slugify";
 
 const SubCategory = sequelize.define("SubCategory", {
   name: {
@@ -7,8 +8,13 @@ const SubCategory = sequelize.define("SubCategory", {
   },
   slug: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    unique: true,
   },
+});
+
+SequelizeSlugify.slugifyModel(SubCategory, {
+  source: ["name"],
+  overwrite: true,
 });
 
 export default SubCategory;

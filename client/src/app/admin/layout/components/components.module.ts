@@ -16,7 +16,8 @@ import { AdminHeaderComponent } from './admin-header/admin-header.component';
     RouterModule
   ],
   exports: [
-    SidebarComponent
+    SidebarComponent,
+    AdminHeaderComponent
   ]
 })
 export class ComponentsModule { }

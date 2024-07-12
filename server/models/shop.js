@@ -1,5 +1,6 @@
 import sequelize from "../config/database.js";
 import { DataTypes } from "sequelize";
+import SequelizeSlugify from "sequelize-slugify";
 
 const Shop = sequelize.define("Shop", {
   name: {
@@ -8,7 +9,7 @@ const Shop = sequelize.define("Shop", {
   },
   slug: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    unique: true,
   },
   rating: {
     type: DataTypes.INTEGER,
@@ -18,6 +19,11 @@ const Shop = sequelize.define("Shop", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+});
+
+SequelizeSlugify.slugifyModel(Shop, {
+  source: ["name"],
+  overwrite: true,
 });
 
 export default Shop;
